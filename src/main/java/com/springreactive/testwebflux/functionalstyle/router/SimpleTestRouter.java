@@ -30,11 +30,14 @@ public class SimpleTestRouter {
                 .POST("/functional/flux", request -> ServerResponse.ok().body(Flux.just(1, 2, 3), Integer.class))
                 .POST("/functional/stream", request -> ServerResponse.ok()
                         .contentType(MediaType.valueOf(MediaType.TEXT_EVENT_STREAM_VALUE)).body(Flux.interval(Duration.ofSeconds(1)), Integer.class))
+                .POST("/functional/get-movie", request -> movieInfoHandler.findById(request))
                 .POST("/functional/insert-movie", request -> movieInfoHandler.insertMovie(request))
                 .POST("/functional/get-movies", request -> movieInfoHandler.findAll(request))
                 .POST("/functional/get-movies-by-year", request -> movieInfoHandler.findByYear(request))
                 .POST("/functional/update-movie", request -> movieInfoHandler.updateMovie(request))
                 .POST("/functional/delete-movie", request -> movieInfoHandler.deleteMovie(request))
+                .GET("/functional/call-dummy-service-mono", request -> movieInfoHandler.testMonoCallDummyService(request))
+                .GET("/functional/call-dummy-service-flux", request -> movieInfoHandler.testFluxCallDummyService(request))
                 .build();
     }
 }

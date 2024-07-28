@@ -1,7 +1,11 @@
 package com.springreactive.testwebflux.functionalstyle.handler;
 
+import com.springreactive.testwebflux.client.TestRestClient;
 import com.springreactive.testwebflux.domain.MovieInfo;
+import com.springreactive.testwebflux.model.DummyModelInfo;
+import com.springreactive.testwebflux.model.DummyModelResponse;
 import com.springreactive.testwebflux.repository.MovieInfoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -12,6 +16,9 @@ import reactor.core.publisher.Mono;
 public class MovieInfoHandler {
 
     private MovieInfoRepository movieInfoRepository;
+
+    @Autowired
+    TestRestClient testRestClient;
 
     public MovieInfoHandler(MovieInfoRepository movieInfoRepository) {
         this.movieInfoRepository = movieInfoRepository;
@@ -26,6 +33,12 @@ public class MovieInfoHandler {
     public Mono<ServerResponse> findAll(ServerRequest request) {
         Flux<MovieInfo> movieInfoFlux = movieInfoRepository.findAll();
         return ServerResponse.ok().body(movieInfoFlux, MovieInfo.class);
+    }
+
+    public Mono<ServerResponse> findById(ServerRequest request) {
+        return request.bodyToMono(MovieInfo.class)
+                .flatMap(movieInfoRequest -> movieInfoRepository.findById(movieInfoRequest.getMovieInfoId())
+                        .flatMap(movieInfo -> ServerResponse.ok().bodyValue(movieInfo)));
     }
 
     public Mono<ServerResponse> findByYear(ServerRequest request) {
@@ -49,6 +62,14 @@ public class MovieInfoHandler {
     public Mono<ServerResponse> deleteMovie(ServerRequest request) {
         return request.bodyToMono(MovieInfo.class)
                 .flatMap(movieInfoRequest -> movieInfoRepository.deleteById(movieInfoRequest.getMovieInfoId())
-                        .flatMap(deletedMovieInfo -> ServerResponse.ok().bodyValue(true)));
+                        .then(ServerResponse.noContent().build()));
+    }
+
+    public Mono<ServerResponse> testMonoCallDummyService(ServerRequest request) {
+        return ServerResponse.ok().body(testRestClient.testMonoCallDummyService(), DummyModelResponse.class);
+    }
+
+    public Mono<ServerResponse> testFluxCallDummyService(ServerRequest request) {
+        return ServerResponse.ok().body(testRestClient.testFluxCallDummyService(), DummyModelInfo.class);
     }
 }

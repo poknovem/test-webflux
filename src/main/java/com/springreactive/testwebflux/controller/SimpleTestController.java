@@ -1,27 +1,32 @@
 package com.springreactive.testwebflux.controller;
 
 
+import com.springreactive.testwebflux.client.TestRestClient;
 import com.springreactive.testwebflux.domain.MovieInfo;
+import com.springreactive.testwebflux.model.DummyModelInfo;
+import com.springreactive.testwebflux.model.DummyModelResponse;
 import com.springreactive.testwebflux.service.MovieInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
 
+@Slf4j
 @RestController
 @RequestMapping("/simpleTestController")
 public class SimpleTestController {
 
     @Autowired
     MovieInfoService movieInfoService;
+
+    @Autowired
+    TestRestClient testRestClient;
 
     Sinks.Many<MovieInfo> movieInfoSink = Sinks.many().replay().all();
 
@@ -73,5 +78,28 @@ public class SimpleTestController {
     @PostMapping(value = "/delete-movie")
     public Mono<Void> deleteMovie(@RequestBody @Validated MovieInfo movieInfo) {
         return movieInfoService.delete(movieInfo.getMovieInfoId()).log();
+    }
+
+    @GetMapping(value = "/call-dummy-service-mono")
+    public Mono<DummyModelResponse> testCallDummyServiceMono() {
+        Mono<DummyModelResponse> responseMono = testRestClient.testMonoCallDummyService();
+        responseMono.doOnNext(response -> {
+            System.out.println("response doOnNext >>> " + response);
+        });
+        responseMono.map(response -> {
+            System.out.println("response map >>> " + response);
+            return response;
+        }).log();
+        return responseMono;
+    }
+
+    @GetMapping(value = "/call-dummy-service-flux")
+    public Flux<DummyModelInfo> testCallDummyServiceFlux() {
+        Flux<DummyModelInfo> responseFlux = testRestClient.testFluxCallDummyService();
+        responseFlux.map(response -> {
+            System.out.println("response >>> " + response);
+            return response;
+        });
+        return responseFlux;
     }
 }
