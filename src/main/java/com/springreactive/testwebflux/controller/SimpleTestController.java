@@ -84,16 +84,17 @@ public class SimpleTestController extends BaseController {
         return apiResponseSuccess(movieInfoService.findByYear(movieInfo.getYear()));
     }
 
-//    @PostMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
-//    public Flux<APIResponse<MovieInfo>> getMoviesStream() {
-//        return apiFluxResponseSuccess(movieInfoSink.asFlux());
-//    }
+    // Server Sent Events (SSE)
+    @PostMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    public Flux<APIResponse<MovieInfo>> getMoviesStream() {
+        return apiFluxResponseSuccess(movieInfoSink.asFlux());
+    }
 
     // Server Sent Events (SSE)
-    @GetMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
-    public Flux<MovieInfo> getMoviesStream() {
-        return movieInfoSink.asFlux();
-    }
+//    @GetMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+//    public Flux<MovieInfo> getMoviesStream() {
+//        return movieInfoSink.asFlux();
+//    }
 
     @PostMapping(value = "/get-movie")
     public Mono<APIResponse<MovieInfo>> getMovie(@RequestBody @Validated MovieInfo movieInfo) {
