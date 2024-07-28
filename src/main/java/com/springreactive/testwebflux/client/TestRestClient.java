@@ -16,7 +16,7 @@ public class TestRestClient extends BaseRestClient {
 //                .bodyToMono(DummyModelResponse.class)
 //                .log();
 
-        return getMono("https://dummyjson.com/postss", DummyModelResponse.class);
+        return getMono("https://dummyjson.com/posts", DummyModelResponse.class);
     }
 
     public Flux<DummyModelInfo> testFluxCallDummyService() {
@@ -25,7 +25,7 @@ public class TestRestClient extends BaseRestClient {
 //                .retrieve()
 //                .bodyToFlux(DummyModelInfo.class)
 //                .log();
-        return getFlux("https://dummyjson.com/postss", DummyModelInfo.class);
+        return getFlux("https://dummyjson.com/posts", DummyModelInfo.class);
     }
 
 }

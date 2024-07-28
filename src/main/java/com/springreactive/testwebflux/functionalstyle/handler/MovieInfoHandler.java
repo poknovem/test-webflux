@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class MovieInfoHandler {
+public class MovieInfoHandler extends BaseHandler{
 
     @Autowired
     private MovieInfoService movieInfoService;
@@ -22,51 +22,74 @@ public class MovieInfoHandler {
     TestRestClient testRestClient;
 
     public Mono<ServerResponse> insertMovie(ServerRequest request) {
-        return request.bodyToMono(MovieInfo.class)
-                .flatMap(movieInfoService::insertMovie)
-                .flatMap(movieInfo -> ServerResponse.ok().bodyValue(movieInfo));
+//        return request.bodyToMono(MovieInfo.class)
+//                .flatMap(movieInfoService::insertMovie)
+//                .flatMap(movieInfo -> ServerResponse.ok().bodyValue(movieInfo));
+        return apiResponseSuccess(request.bodyToMono(MovieInfo.class).flatMap(movieInfoService::insertMovie));
+    }
+
+    public Mono<ServerResponse> findById(ServerRequest request) {
+//        return request.bodyToMono(MovieInfo.class)
+//                .flatMap(movieInfoRequest -> movieInfoService.findById(movieInfoRequest.getMovieInfoId())
+//                        .flatMap(movieInfo -> ServerResponse.ok().bodyValue(movieInfo)));
+        return apiResponseSuccess(request.bodyToMono(MovieInfo.class)
+                .flatMap(movieInfoRequest -> movieInfoService.findById(movieInfoRequest.getMovieInfoId())));
     }
 
     public Mono<ServerResponse> findAll(ServerRequest request) {
         Flux<MovieInfo> movieInfoFlux = movieInfoService.findAll();
-        return ServerResponse.ok().body(movieInfoFlux, MovieInfo.class);
-    }
-
-    public Mono<ServerResponse> findById(ServerRequest request) {
-        return request.bodyToMono(MovieInfo.class)
-                .flatMap(movieInfoRequest -> movieInfoService.findById(movieInfoRequest.getMovieInfoId())
-                        .flatMap(movieInfo -> ServerResponse.ok().bodyValue(movieInfo)));
+//        return ServerResponse.ok().body(movieInfoFlux, MovieInfo.class);
+        return apiFluxResponseSuccess(movieInfoFlux, null);
     }
 
     public Mono<ServerResponse> findByYear(ServerRequest request) {
+//        return request.bodyToMono(MovieInfo.class)
+//                .map(movieInfoRequest -> movieInfoService.findByYear(movieInfoRequest.getYear()))
+//                .flatMap(movieInfoByYear -> ServerResponse.ok().body(movieInfoByYear, MovieInfo.class));
         return request.bodyToMono(MovieInfo.class)
                 .map(movieInfoRequest -> movieInfoService.findByYear(movieInfoRequest.getYear()))
-                .flatMap(movieInfoByYear -> ServerResponse.ok().body(movieInfoByYear, MovieInfo.class));
+                .flatMap(movieInfoByYear -> apiFluxResponseSuccess(movieInfoByYear, null));
+
+//        return apiResponseSuccess(request.bodyToMono(MovieInfo.class)
+//                .map(movieInfoRequest -> movieInfoService.findByYear(movieInfoRequest.getYear())));
     }
 
+
+
     public Mono<ServerResponse> updateMovie(ServerRequest request) {
-        return request.bodyToMono(MovieInfo.class)
+//        return request.bodyToMono(MovieInfo.class)
+//                .flatMap(movieInfoRequest -> movieInfoService.findById(movieInfoRequest.getMovieInfoId())
+//                        .map(movieInfoById -> {
+//                            movieInfoById.setName(movieInfoRequest.getName() + (int) (Math.random() * 100));
+//                            return movieInfoById;
+//                        })
+//                        .flatMap(movieInfoService::update)
+//                        .flatMap(savedMovieInfo -> ServerResponse.ok().bodyValue(savedMovieInfo)));
+        return apiResponseSuccess(request.bodyToMono(MovieInfo.class)
                 .flatMap(movieInfoRequest -> movieInfoService.findById(movieInfoRequest.getMovieInfoId())
                         .map(movieInfoById -> {
                             movieInfoById.setName(movieInfoRequest.getName() + (int) (Math.random() * 100));
                             return movieInfoById;
                         })
-                        .flatMap(movieInfoService::update)
-                        .flatMap(savedMovieInfo -> ServerResponse.ok().bodyValue(savedMovieInfo)));
+                        .flatMap(movieInfoService::update)));
 
     }
 
     public Mono<ServerResponse> deleteMovie(ServerRequest request) {
-        return request.bodyToMono(MovieInfo.class)
-                .flatMap(movieInfoRequest -> movieInfoService.delete(movieInfoRequest.getMovieInfoId())
-                        .then(ServerResponse.noContent().build()));
+//        return request.bodyToMono(MovieInfo.class)
+//                .flatMap(movieInfoRequest -> movieInfoService.delete(movieInfoRequest.getMovieInfoId())
+//                        .then(ServerResponse.noContent().build()));
+        return apiResponseSuccess(request.bodyToMono(MovieInfo.class)
+                .flatMap(movieInfoRequest -> movieInfoService.delete(movieInfoRequest.getMovieInfoId())));
     }
 
     public Mono<ServerResponse> testMonoCallDummyService(ServerRequest request) {
-        return ServerResponse.ok().body(testRestClient.testMonoCallDummyService(), DummyModelResponse.class);
+//        return ServerResponse.ok().body(testRestClient.testMonoCallDummyService(), DummyModelResponse.class);
+        return apiResponseSuccess(testRestClient.testMonoCallDummyService());
     }
 
     public Mono<ServerResponse> testFluxCallDummyService(ServerRequest request) {
-        return ServerResponse.ok().body(testRestClient.testFluxCallDummyService(), DummyModelInfo.class);
+//        return ServerResponse.ok().body(testRestClient.testFluxCallDummyService(), DummyModelInfo.class);
+        return apiFluxResponseSuccess(testRestClient.testFluxCallDummyService(), null);
     }
 }

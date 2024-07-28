@@ -1,6 +1,7 @@
 package com.springreactive.testwebflux.functionalstyle.router;
 
 import com.springreactive.testwebflux.functionalstyle.handler.MovieInfoHandler;
+import com.springreactive.testwebflux.model.APIResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -15,7 +16,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 
 @Configuration
-public class SimpleTestRouter {
+public class SimpleTestRouter extends BaseRouter{
 
     private MovieInfoHandler movieInfoHandler;
 
@@ -26,10 +27,10 @@ public class SimpleTestRouter {
     @Bean
     public RouterFunction<ServerResponse> router() {
         return route()
-                .POST("/functional/mono", request -> Mono.just(1).flatMap(result -> ServerResponse.ok().bodyValue(result)))
-                .POST("/functional/flux", request -> ServerResponse.ok().body(Flux.just(1, 2, 3), Integer.class))
-                .POST("/functional/stream", request -> ServerResponse.ok()
-                        .contentType(MediaType.valueOf(MediaType.TEXT_EVENT_STREAM_VALUE)).body(Flux.interval(Duration.ofSeconds(1)), Integer.class))
+                .POST("/functional/mono", request -> apiResponseSuccess(Mono.just(1)))
+                .POST("/functional/flux", request ->  apiFluxResponseSuccess(Flux.just(1, 2, 3), null))
+                .POST("/functional/stream", request -> apiFluxResponseSuccess(Flux.interval(Duration.ofSeconds(1))
+                        , MediaType.valueOf(MediaType.TEXT_EVENT_STREAM_VALUE)))
                 .POST("/functional/get-movie", request -> movieInfoHandler.findById(request))
                 .POST("/functional/insert-movie", request -> movieInfoHandler.insertMovie(request))
                 .POST("/functional/get-movies", request -> movieInfoHandler.findAll(request))

@@ -3,6 +3,7 @@ package com.springreactive.testwebflux.controller;
 
 import com.springreactive.testwebflux.client.TestRestClient;
 import com.springreactive.testwebflux.domain.MovieInfo;
+import com.springreactive.testwebflux.model.APIResponse;
 import com.springreactive.testwebflux.model.DummyModelInfo;
 import com.springreactive.testwebflux.model.DummyModelResponse;
 import com.springreactive.testwebflux.service.MovieInfoService;
@@ -20,7 +21,7 @@ import java.time.Duration;
 @Slf4j
 @RestController
 @RequestMapping("/simpleTestController")
-public class SimpleTestController {
+public class SimpleTestController extends BaseController{
 
     @Autowired
     MovieInfoService movieInfoService;
@@ -31,57 +32,63 @@ public class SimpleTestController {
     Sinks.Many<MovieInfo> movieInfoSink = Sinks.many().replay().all();
 
     @PostMapping("/mono")
-    public Mono<Integer> mono() {
-        return Mono.just(1).log();
+    public Mono<APIResponse<Integer>> mono() {
+        return apiResponseSuccess(Mono.just(1));
     }
 
     @PostMapping("/flux")
-    public Flux<Integer> flux() {
-        return Flux.just(1, 2, 3).log();
+    public Flux<APIResponse<Integer>> flux() {
+        return apiFluxResponseSuccess(Flux.just(1, 2, 3));
     }
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Long> stream() {
-        return Flux.interval(Duration.ofSeconds(1)).log();
+    public Flux<APIResponse<Long>> stream() {
+        return apiFluxResponseSuccess(Flux.interval(Duration.ofSeconds(1)));
     }
 
     @PostMapping(value = "/insert-movie")
-    public Mono<MovieInfo> insertMovie(@RequestBody @Validated MovieInfo movieInfo) {
-        return movieInfoService.insertMovie(movieInfo).log();
+    public Mono<APIResponse<MovieInfo>> insertMovie(@RequestBody @Validated MovieInfo movieInfo) {
+        return apiResponseSuccess(movieInfoService.insertMovie(movieInfo));
     }
 
+//    @PostMapping(value = "/get-movies-pack")
+//    public Mono<APIResponse<MovieInfo>> getMoviesPack() {
+//        return apiResponseSuccess(movieInfoService.findAll());
+//    }
+
     @PostMapping(value = "/get-movies")
-    public Flux<MovieInfo> getMovies() {
-        return movieInfoService.findAll().log();
+    public Flux<APIResponse<MovieInfo>> getMovies() {
+        return apiFluxResponseSuccess(movieInfoService.findAll());
     }
 
     @PostMapping(value = "/get-movies-by-year")
-    public Flux<MovieInfo> getMoviesByYear(@RequestBody MovieInfo movieInfo) {
-        return movieInfoService.findByYear(movieInfo.getYear()).log();
+    public Flux<APIResponse<MovieInfo>> getMoviesByYear(@RequestBody MovieInfo movieInfo) {
+        return apiFluxResponseSuccess(movieInfoService.findByYear(movieInfo.getYear()));
     }
 
     @PostMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
-    public Flux<MovieInfo> getMoviesStream() {
-        return movieInfoSink.asFlux();
+    public Flux<APIResponse<MovieInfo>> getMoviesStream() {
+        return apiFluxResponseSuccess(movieInfoSink.asFlux());
     }
 
     @PostMapping(value = "/get-movie")
-    public Mono<MovieInfo> getMovie(@RequestBody @Validated MovieInfo movieInfo) {
-        return movieInfoService.findById(movieInfo.getMovieInfoId()).doOnNext(movieInfoResult -> movieInfoSink.tryEmitNext(movieInfoResult)).log();
+    public Mono<APIResponse<MovieInfo>> getMovie(@RequestBody @Validated MovieInfo movieInfo) {
+        return apiResponseSuccess(movieInfoService.findById(movieInfo.getMovieInfoId())
+                .doOnNext(movieInfoResult -> movieInfoSink.tryEmitNext(movieInfoResult)));
     }
 
     @PostMapping(value = "/update-movie")
-    public Mono<MovieInfo> updateMovie(@RequestBody @Validated MovieInfo movieInfo) {
-        return movieInfoService.update(movieInfo).log();
+    public Mono<APIResponse<MovieInfo>> updateMovie(@RequestBody @Validated MovieInfo movieInfo) {
+        return apiResponseSuccess(movieInfoService.update(movieInfo));
     }
 
     @PostMapping(value = "/delete-movie")
-    public Mono<Void> deleteMovie(@RequestBody @Validated MovieInfo movieInfo) {
-        return movieInfoService.delete(movieInfo.getMovieInfoId()).log();
+    public Mono<APIResponse<Void>> deleteMovie(@RequestBody @Validated MovieInfo movieInfo) {
+        return apiResponseSuccess(movieInfoService.delete(movieInfo.getMovieInfoId()));
     }
 
     @GetMapping(value = "/call-dummy-service-mono")
-    public Mono<DummyModelResponse> testCallDummyServiceMono() {
+    public Mono<APIResponse<DummyModelResponse>> testCallDummyServiceMono() {
         Mono<DummyModelResponse> responseMono = testRestClient.testMonoCallDummyService();
         responseMono.doOnNext(response -> {
             System.out.println("response doOnNext >>> " + response);
@@ -90,16 +97,16 @@ public class SimpleTestController {
             System.out.println("response map >>> " + response);
             return response;
         }).log();
-        return responseMono;
+        return apiResponseSuccess(responseMono);
     }
 
     @GetMapping(value = "/call-dummy-service-flux")
-    public Flux<DummyModelInfo> testCallDummyServiceFlux() {
+    public Flux<APIResponse<DummyModelInfo>> testCallDummyServiceFlux() {
         Flux<DummyModelInfo> responseFlux = testRestClient.testFluxCallDummyService();
         responseFlux.map(response -> {
             System.out.println("response >>> " + response);
             return response;
         });
-        return responseFlux;
+        return apiFluxResponseSuccess(responseFlux);
     }
 }
