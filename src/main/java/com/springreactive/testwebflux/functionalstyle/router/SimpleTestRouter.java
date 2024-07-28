@@ -34,11 +34,14 @@ public class SimpleTestRouter extends BaseRouter{
                 .POST("/functional/get-movie", request -> movieInfoHandler.findById(request))
                 .POST("/functional/insert-movie", request -> movieInfoHandler.insertMovie(request))
                 .POST("/functional/get-movies", request -> movieInfoHandler.findAll(request))
+                .POST("/functional/get-movies-pack", request -> movieInfoHandler.findAllPack(request))
                 .POST("/functional/get-movies-by-year", request -> movieInfoHandler.findByYear(request))
+                .POST("/functional/get-movies-by-year-pack", request -> movieInfoHandler.findByYearPack(request))
                 .POST("/functional/update-movie", request -> movieInfoHandler.updateMovie(request))
                 .POST("/functional/delete-movie", request -> movieInfoHandler.deleteMovie(request))
                 .GET("/functional/call-dummy-service-mono", request -> movieInfoHandler.testMonoCallDummyService(request))
                 .GET("/functional/call-dummy-service-flux", request -> movieInfoHandler.testFluxCallDummyService(request))
+                .GET("/functional/call-dummy-service-flux-pack", request -> movieInfoHandler.testFluxCallDummyServicePack(request))
                 .build();
     }
 }

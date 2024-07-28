@@ -7,13 +7,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class BaseHandler {
-    public <T> Mono<ServerResponse> apiResponseSuccess (Mono<T> mono){
+    public <T> Mono<ServerResponse> apiResponseSuccess(Mono<T> mono) {
         return ServerResponse
                 .ok()
                 .body(mono.map(APIResponse::success).log(), APIResponse.class);
     }
 
-    public <T> Mono<ServerResponse> apiFluxResponseSuccess (Flux<T> flux, MediaType mediaType){
+    public <T> Mono<ServerResponse> apiResponseSuccess(Flux<T> flux) {
+        return ServerResponse
+                .ok()
+                .body(flux.collectList().map(APIResponse::success).log(), APIResponse.class);
+    }
+
+    public <T> Mono<ServerResponse> apiFluxResponseSuccess(Flux<T> flux, MediaType mediaType) {
         return ServerResponse
                 .ok()
                 .contentType(mediaType)
