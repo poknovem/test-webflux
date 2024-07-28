@@ -9,14 +9,14 @@ import java.util.List;
 public class BaseController {
 
     public <T> Mono<APIResponse<T>> apiResponseSuccess(Mono<T> mono) {
-        return mono.map(APIResponse::success).log();
+        return mono.map(APIResponse::success).defaultIfEmpty(APIResponse.defaultz()).log();
     }
 
     public <T> Mono<APIResponse<List<T>>> apiResponseSuccess(Flux<T> flux) {
-        return flux.collectList().map(APIResponse::success).log();
+        return flux.collectList().map(APIResponse::success).defaultIfEmpty(APIResponse.defaultz()).log();
     }
 
     public <T> Flux<APIResponse<T>> apiFluxResponseSuccess(Flux<T> flux) {
-        return flux.map(APIResponse::success).log();
+        return flux.map(APIResponse::success).defaultIfEmpty(APIResponse.defaultz()).log();
     }
 }

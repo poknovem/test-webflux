@@ -62,4 +62,8 @@ public class APIResponse<T> {
         response.setMessage(userMessage == null || userMessage.isEmpty() ? FAIL : userMessage);
         return response;
     }
+
+    public static <T> APIResponse<T> defaultz() {
+        return success(ApiCode.SUCCESS200, null);
+    }
 }

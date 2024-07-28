@@ -54,6 +54,6 @@ public class BaseRestClient {
                     "There is no services", clientResponse.statusCode().value()));
         }
         return clientResponse.bodyToMono(String.class)
-                .flatMap(responseMessage -> Mono.error(new CustomException(responseMessage, clientResponse.statusCode().value())));
+                .flatMap(responseMessage -> Mono.error(new CustomException("Error ja", clientResponse.statusCode().value())));
     }
 }
