@@ -1,0 +1,12 @@
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8085/simpleTestController/get-movies-stream
+
+
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+    "movieInfoId": "F5"
+}' \
+  http://localhost:8085/simpleTestController/get-movie

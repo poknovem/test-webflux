@@ -47,11 +47,13 @@ public class SimpleTestController extends BaseController {
         return apiResponseSuccess(Flux.just(1, 2, 3));
     }
 
+    // Server Sent Events (SSE)
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<APIResponse<Long>> stream() {
         return apiFluxResponseSuccess(Flux.interval(Duration.ofSeconds(1)));
     }
 
+    // Server Sent Events (SSE)
     @PostMapping(value = "/stream-pack", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Mono<APIResponse<List<Long>>> streamPack() {
         return apiResponseSuccess(Flux.interval(Duration.ofSeconds(1)));
@@ -82,9 +84,15 @@ public class SimpleTestController extends BaseController {
         return apiResponseSuccess(movieInfoService.findByYear(movieInfo.getYear()));
     }
 
-    @PostMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
-    public Flux<APIResponse<MovieInfo>> getMoviesStream() {
-        return apiFluxResponseSuccess(movieInfoSink.asFlux());
+//    @PostMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+//    public Flux<APIResponse<MovieInfo>> getMoviesStream() {
+//        return apiFluxResponseSuccess(movieInfoSink.asFlux());
+//    }
+
+    // Server Sent Events (SSE)
+    @GetMapping(value = "/get-movies-stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    public Flux<MovieInfo> getMoviesStream() {
+        return movieInfoSink.asFlux();
     }
 
     @PostMapping(value = "/get-movie")
